@@ -18,12 +18,18 @@ namespace Training.MongoDb.Controllers
             var mongoDbConnectionString = "mongodb://orient:orient@ds159235.mlab.com:59235/candidate";
             IMongoClient mongoClient = new MongoClient(mongoDbConnectionString);
             var mongoDatabase = mongoClient.GetDatabase("candidate");
-            var collection = mongoDatabase.GetCollection<Student>(typeof(Student).Name);
+
+            var collection = mongoDatabase.GetCollection<Student>("Student");
+            collection.InsertOne(new Student() { Id = "baacs", Class = "Nguyen a" });
+
+            var collection1 = mongoDatabase.GetCollection<Student>("Students");
+            collection1.InsertOne(new Student() { Id = "bacsasa", Class = "Nguyen b" });
+
 
             var filter = Builders<Student>.Filter.Where(it => it.Id == "445ab111-33d2-4909-89dc-c5c44ea57b60");
             var stus = collection.Find(filter).ToList();
 
-            return Ok("anc");
+            return Ok(stus);
         }
 
         // GET api/values/5
