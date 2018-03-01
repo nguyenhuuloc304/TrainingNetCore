@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Training.MongoDBService;
 
 namespace Training.MongoDb
 {
@@ -24,6 +25,8 @@ namespace Training.MongoDb
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+
+            services.AddSingleton<IMongoDbWriteRepository>(new MongoDbWriteRepository("mongodb://orient:orient@ds159235.mlab.com:59235/candidate"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
