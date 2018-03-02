@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Training.MongoDBService;
+using Swashbuckle.AspNetCore.Swagger;
 
 namespace Training.MongoDb
 {
@@ -25,7 +26,11 @@ namespace Training.MongoDb
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-
+            // Register the Swagger generator, defining one or more Swagger documents
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
+            });
             services.AddSingleton<IMongoDbWriteRepository>(new MongoDbWriteRepository("mongodb://orient:orient@ds159235.mlab.com:59235/candidate"));
         }
 
@@ -36,7 +41,14 @@ namespace Training.MongoDb
             {
                 app.UseDeveloperExceptionPage();
             }
+            // Enable middleware to serve generated Swagger as a JSON endpoint.
+            app.UseSwagger();
 
+            // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), specifying the Swagger JSON endpoint.
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+            });
             app.UseMvc();
         }
     }
