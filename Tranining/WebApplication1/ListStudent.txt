@@ -1,1 +1,0 @@
-[{"Id":1,"HoTen":"Nguyen ABC","Lop":"IT","NamSinh":1993},{"Id":3,"HoTen":"Nguyen Van C","Lop":"SEO","NamSinh":1995},{"Id":4,"HoTen":"Nguyen Van D","Lop":"SEO","NamSinh":1996}]
