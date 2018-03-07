@@ -41,6 +41,7 @@ namespace Training.MongoDb.Controllers
         [HttpPost]
         public IActionResult Post([FromBody] Student stu)
         {
+            stu.Id = Guid.NewGuid().ToString();
             _writeRepository.Create(stu);
             return Ok();
         }
