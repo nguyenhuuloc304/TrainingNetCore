@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using MongoDB.Driver;
 using Training.MongoDBService;
 using Training.MongoDb.Models;
+using Training.MongoDb.Filters;
 
 namespace Training.MongoDb.Controllers
 {
+    [ValidationFilter]
     [Route("api/[controller]")]
     public class ValuesController : Controller
     {
@@ -38,9 +40,14 @@ namespace Training.MongoDb.Controllers
         }
 
         // POST api/values
+        
         [HttpPost]
         public IActionResult Post([FromBody] Student stu)
         {
+            //if (!ModelState.IsValid)
+            //{
+            //    return BadRequest(ModelState);
+            //}
             stu.Id = Guid.NewGuid().ToString();
             _writeRepository.Create(stu);
             return Ok();

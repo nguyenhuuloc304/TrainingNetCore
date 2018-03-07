@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Training.MongoDBService;
 using Swashbuckle.AspNetCore.Swagger;
+using Training.MongoDb.Filters;
 
 namespace Training.MongoDb
 {
@@ -25,7 +26,12 @@ namespace Training.MongoDb
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+            services.AddMvc(options =>
+            {
+                //options.Filters.Add(new AddHeaderAttribute("")); // an instance
+                options.Filters.Add(typeof(ValidationFilter)); // by type
+                //options.Filters.Add(new SampleGlobalActionFilter()); // an instance
+            });
 
             services.AddCors(o => o.AddPolicy("MyPolicy", builder =>
             {
