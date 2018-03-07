@@ -16,5 +16,11 @@ namespace Training.MongoDb.Filters
                 context.Result = new BadRequestObjectResult(context.ModelState);
             }
         }
+
+        public override void OnActionExecuted(ActionExecutedContext context)
+        {
+            var temp = 0;
+            // do something after the action executes
+        }
     }
 }

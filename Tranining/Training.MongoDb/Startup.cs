@@ -29,7 +29,8 @@ namespace Training.MongoDb
             services.AddMvc(options =>
             {
                 //options.Filters.Add(new AddHeaderAttribute("")); // an instance
-                options.Filters.Add(typeof(ValidationFilter)); // by type
+                //options.Filters.Add(typeof(ValidationFilter)); // by type
+                options.Filters.Add(typeof(GlobalExceptionFilter)); // by type                
                 //options.Filters.Add(new SampleGlobalActionFilter()); // an instance
             });
 

@@ -25,6 +25,7 @@ namespace Training.MongoDb.Controllers
         [HttpGet]
         public IActionResult Get()
         {
+            throw new NotImplementedException();
             var filter = Builders<Student>.Filter.Empty;
             var listStudent = _writeRepository.Find(filter).ToList();
             return Ok(listStudent);
@@ -48,6 +49,7 @@ namespace Training.MongoDb.Controllers
             //{
             //    return BadRequest(ModelState);
             //}
+            
             stu.Id = Guid.NewGuid().ToString();
             _writeRepository.Create(stu);
             return Ok();
@@ -77,5 +79,6 @@ namespace Training.MongoDb.Controllers
             _writeRepository.Delete(student);
             return Ok();
         }
+        
     }
 }
