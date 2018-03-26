@@ -1,0 +1,22 @@
+﻿@model List<Customer>
+@{
+    ViewData["Title"] = "Home Page";
+    var student = (Student)ViewBag.student;
+}
+
+
+
+<div class="row">
+    <div class="col-md-12">
+       edit Product
+        <ul>
+            @foreach (var item in Model)
+            {
+                <li>@item.Id - @item.Name</li>
+            }
+        </ul>
+        
+        @ViewBag.student.Name
+    </div>
+
+</div>
