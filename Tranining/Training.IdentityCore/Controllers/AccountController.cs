@@ -13,10 +13,13 @@ using Microsoft.Extensions.Options;
 using Training.IdentityCore.Models;
 using Training.IdentityCore.Models.AccountViewModels;
 using Training.IdentityCore.Services;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.Extensions.Configuration;
 
 namespace Training.IdentityCore.Controllers
-{
-    [Authorize]
+{    
     [Route("[controller]/[action]")]
     public class AccountController : Controller
     {
@@ -24,17 +27,20 @@ namespace Training.IdentityCore.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailSender _emailSender;
         private readonly ILogger _logger;
+        private readonly IConfiguration _config;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IEmailSender emailSender,
-            ILogger<AccountController> logger)
+            ILogger<AccountController> logger,
+            IConfiguration config)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
             _logger = logger;
+            _config = config;
         }
 
         [TempData]
@@ -458,7 +464,50 @@ namespace Training.IdentityCore.Controllers
                 return RedirectToAction(nameof(HomeController.Index), "Home");
             }
         }
+        
+        [HttpPost]
+        public async Task<IActionResult> CreateToken([FromBody] LoginViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByEmailAsync(model.Email);
 
-        #endregion
+                if (user != null)
+                {
+                    var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
+                    if (result.Succeeded)
+                    {
+                        var claims = new[]
+                        {
+                            new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+                            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                            new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName)
+                        };
+
+                        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Tokens:Key"]));
+                        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+                        var token = new JwtSecurityToken(
+                            _config["Tokens:Issuer"],
+                            _config["Tokens:Audience"],
+                            claims,
+                            expires: DateTime.UtcNow.AddMinutes(20),
+                            signingCredentials: creds
+                            );
+
+                        var results = new
+                        {
+                            token = new JwtSecurityTokenHandler().WriteToken(token),
+                            expiration = token.ValidTo
+                        };
+
+                        return Created("", results);
+                    }
+                }
+            }
+
+            return BadRequest();
+        }
     }
+    #endregion
 }
