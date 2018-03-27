@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Training.UOW.Models;
+using Training.UOW.DAL;
 
 namespace Training.UOW.Controllers
 {
@@ -12,11 +13,15 @@ namespace Training.UOW.Controllers
     {
         public IActionResult Index()
         {
-            var listCus = new List<Customer>();
-            listCus.Add(new Customer { Id = Guid.NewGuid().ToString(), Name = "Nguyen 1" });
-            listCus.Add(new Customer { Id = Guid.NewGuid().ToString(), Name = "Nguyen 2" });
+            UnitOfWork UOW = new UnitOfWork();
+            var customer = UOW.CustomersRepository.Get();
             ViewBag.student = new Student { Id = Guid.NewGuid().ToString(), Name = "Nguyen 2", Class = "DTH2" };
-            return View(listCus);
+
+            UOW.CustomersRepository.Insert(new Data.Models.Customers { Name = "David" });
+            UOW.CourseRepository.Insert(new Data.Models.Products { Name = "Dotnet", Price = 1 });
+            UOW.Save();
+
+            return View(customer);
         }
 
         public IActionResult About()
