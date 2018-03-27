@@ -19,7 +19,7 @@ using System.Text;
 using Microsoft.Extensions.Configuration;
 
 namespace Training.IdentityCore.Controllers
-{    
+{
     [Route("[controller]/[action]")]
     public class AccountController : Controller
     {
@@ -464,45 +464,43 @@ namespace Training.IdentityCore.Controllers
                 return RedirectToAction(nameof(HomeController.Index), "Home");
             }
         }
-        
+
         [HttpPost]
         public async Task<IActionResult> CreateToken([FromBody] LoginViewModel model)
         {
             if (ModelState.IsValid)
             {
                 var user = await _userManager.FindByEmailAsync(model.Email);
-
                 if (user != null)
                 {
-                    var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
-                    if (result.Succeeded)
+
+                    var result = await _signInManager.CheckPasswordSignInAsync
+                                    (user, model.Password, lockoutOnFailure: false);
+
+                    if (!result.Succeeded)
                     {
-                        var claims = new[]
-                        {
-                            new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                            new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName)
-                        };
-
-                        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Tokens:Key"]));
-                        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-                        var token = new JwtSecurityToken(
-                            _config["Tokens:Issuer"],
-                            _config["Tokens:Audience"],
-                            claims,
-                            expires: DateTime.UtcNow.AddMinutes(20),
-                            signingCredentials: creds
-                            );
-
-                        var results = new
-                        {
-                            token = new JwtSecurityTokenHandler().WriteToken(token),
-                            expiration = token.ValidTo
-                        };
-
-                        return Created("", results);
+                        return Unauthorized();
                     }
+
+                    var claims = new[]
+                    {
+                        new Claim(JwtRegisteredClaimNames.Sub, model.Email),
+                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                    };
+
+                    var token = new JwtSecurityToken
+                    (
+                        issuer: _config["Tokens:Issuer"],
+                        audience: _config["Tokens:Audience"],
+                        claims: claims,
+                        expires: DateTime.UtcNow.AddDays(60),
+                        notBefore: DateTime.UtcNow,
+                        signingCredentials: new SigningCredentials(new SymmetricSecurityKey
+                                    (Encoding.UTF8.GetBytes(_config["Tokens:Key"])),
+                                SecurityAlgorithms.HmacSha256)
+                    );
+
+                    return Ok(new { token = new JwtSecurityTokenHandler().WriteToken(token) });
                 }
             }
 
