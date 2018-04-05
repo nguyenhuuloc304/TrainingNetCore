@@ -17,10 +17,8 @@ namespace Training.UploadFile.WebAPI
     public class FilesController : Controller
     {
         private readonly IAzureBlobProvider _azureBlobProvider;
-        //private readonly IWorkContextProvider _workContextProvider;
 
-        public FilesController(
-            IAzureBlobProvider azureBlobProvider)
+        public FilesController(IAzureBlobProvider azureBlobProvider)
         {
             _azureBlobProvider = azureBlobProvider;
         }
@@ -43,7 +41,7 @@ namespace Training.UploadFile.WebAPI
                 Stream fileStream = file.OpenReadStream();
 
                 string containerName = "sites";
-                string blobName = "files" + Path.GetExtension(file.FileName);
+                string blobName = file.FileName; // file.FileName + Path.GetExtension(file.FileName);
 
                 Uri fileUri = await _azureBlobProvider.CreateBlobAsync(containerName, blobName, fileStream);
                 filePaths.Add(fileUri.AbsolutePath);
